@@ -38,4 +38,4 @@ export class Label extends TextBase implements LabelDefinition {
     }
 }
 
-// Label.prototype.recycleNativeView = true;
+Label.prototype.recycleNativeView = true;
