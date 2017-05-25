@@ -431,10 +431,12 @@ export class View extends ViewCommon {
         return drawable ? drawable.getConstantState().newDrawable(nativeView.getResources()) : null;
     }
     [backgroundInternalProperty.setNative](value: android.graphics.drawable.Drawable | Background) {
-        if (value instanceof android.graphics.drawable.Drawable) {
-            this.nativeView.setBackground(value);
-        } else {
+        if (value instanceof Background) {
             androidBackground.onBackgroundOrBorderPropertyChanged(this);
+        } else {
+            const nativeView = this.nativeView;
+            nativeView.setBackground(value);
+            nativeView.setPadding(this._defaultPaddingLeft, this._defaultPaddingTop, this._defaultPaddingRight, this._defaultPaddingBottom);
         }
     }
 
