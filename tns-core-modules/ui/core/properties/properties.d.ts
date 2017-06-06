@@ -121,3 +121,15 @@ export function clearInheritedProperties(view: ViewBase): void;
 
 export function makeValidator<T>(...values: T[]): (value: any) => value is T;
 export function makeParser<T>(isValid: (value: any) => boolean): (value: any) => T;
+
+//@private
+/**
+ * @private get all properties defined on ViewBase
+ */
+export function _getProperties(): Property<any, any>[];
+
+/**
+ * @private get all properties defined on Style
+ */
+export function _getStyleProperties(): CssProperty<any, any>[];
+//@endprivate
