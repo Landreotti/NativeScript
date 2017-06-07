@@ -144,6 +144,14 @@ export class Property<T extends ViewBase, U> implements TypedPropertyDescriptor<
                 if (affectsLayout) {
                     this.requestLayout();
                 }
+
+                if (this.domNode) {
+                    if (reset) {
+                        this.domNode.attributeRemoved(name);
+                    } else {
+                        this.domNode.attributeModified(name, unboxedValue);
+                    }
+                }
             }
         };
 
@@ -289,6 +297,14 @@ export class CoercibleProperty<T extends ViewBase, U> extends Property<T, U> imp
 
                 if (affectsLayout) {
                     this.requestLayout();
+                }
+
+                if (this.domNode) {
+                    if (reset) {
+                        this.domNode.attributeRemoved(name);
+                    } else {
+                        this.domNode.attributeModified(name, unboxedValue);
+                    }
                 }
             }
         }
@@ -1137,7 +1153,7 @@ export function getSetProperties(view: ViewBase): [string, any][] {
 
         const value = view[property.key];
         result.push([property.name, value]);
-    } 
+    }
 
     return result;
 }

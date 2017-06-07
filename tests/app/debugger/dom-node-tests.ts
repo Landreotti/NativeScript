@@ -1,17 +1,18 @@
 import { assert, assertEqual, assertFalse, assertTrue, assertThrows } from "../TKUnit";
 import { DOMNode, Inspector } from "tns-core-modules/debugger/dom-node";
+import { unsetValue } from "tns-core-modules/ui/core/properties";
 import { Button } from "tns-core-modules/ui/button";
+import { Slider } from "tns-core-modules/ui/slider";
 import { Label } from "tns-core-modules/ui/label";
 import { StackLayout } from "tns-core-modules/ui/layouts/stack-layout";
 
 let originalInspectorGlobal;
-let currentInspector : Inspector = { 
-    childNodeInserted(parentId: number, lastId: number, nodeStr: string) : void {
-    },
-    childNodeRemoved(parentId: number, nodeId: number): void {
-    },
-    documentUpdated(): void {
-    }
+let currentInspector: Inspector = {
+    childNodeInserted(parentId: number, lastId: number, nodeStr: string): void { },
+    childNodeRemoved(parentId: number, nodeId: number): void { },
+    documentUpdated(): void { },
+    attributeModified(nodeId: number, attrName: string, attrValue: string) { },
+    attributeRemoved(nodeId: number, attrName: string) { }
 };
 
 export function setUp(): void {
@@ -69,7 +70,7 @@ export function test_childNodeInserted_in_dom_node() {
         childNodeInsertedCalled = true;
         actualParentId = parentId;
     }
-    
+
     const stack = new StackLayout();
     stack.ensureDomNode();
     expectedParentId = stack._domId;
@@ -88,7 +89,7 @@ export function test_childNodeInserted_at_index_in_dom_node() {
     currentInspector.childNodeInserted = (parentId, lastNodeId, node) => {
         actualLastId = lastNodeId;
     }
-    
+
     const stack = new StackLayout();
     stack.ensureDomNode();
 
@@ -102,7 +103,7 @@ export function test_childNodeInserted_at_index_in_dom_node() {
     const btn2 = new Button();
     btn2.text = "button2";
     stack.addChild(btn2);
-    
+
     // child index 2
     const btn3 = new Button();
     btn3.text = "button3";
@@ -124,7 +125,7 @@ export function test_childNodeRemoved_in_dom_node() {
         childNodeRemovedCalled = true;
         actualRemovedNodeId = nodeId;
     }
-    
+
     const stack = new StackLayout();
     stack.ensureDomNode();
 
@@ -154,4 +155,77 @@ function test_falsy_property_is_reported_in_dom_node() {
 
     btn.text = undefined;
     assertAttribute(domNode, "text", undefined);
+}
+
+export function test_property_change_calls_attributeModified() {
+    const btn = new Button();
+    btn.ensureDomNode();
+    const domNode = btn.domNode;
+
+    let callbackCalled = false;
+    currentInspector.attributeModified = (nodeId: number, attrName: string, attrValue: string) => {
+        assertEqual(nodeId, domNode.nodeId, "nodeId");
+        assertEqual(attrName, "text", "attrName");
+        assertEqual(attrValue, "new value", "attrValue");
+        callbackCalled = true;
+    }
+
+    btn.text = "new value";
+
+    assert(callbackCalled, "attributeModified not called");
+}
+
+export function test_property_reset_calls_attributeRemoved() {
+    const btn = new Button();
+    btn.text = "some value";
+    btn.ensureDomNode();
+    const domNode = btn.domNode;
+
+    let callbackCalled = false;
+    currentInspector.attributeRemoved = (nodeId: number, attrName: string) => {
+        assertEqual(nodeId, domNode.nodeId, "nodeId");
+        assertEqual(attrName, "text", "attrName");
+        callbackCalled = true;
+    }
+
+    btn.text = unsetValue;
+
+    assert(callbackCalled, "attributeRemoved not called");
+}
+
+
+export function test_coercible_property_change_calls_attributeModified() {
+    const slider = new Slider();
+    slider.ensureDomNode();
+    const domNode = slider.domNode;
+
+    let callbackCalled = false;
+    currentInspector.attributeModified = (nodeId: number, attrName: string, attrValue: string) => {
+        assertEqual(nodeId, domNode.nodeId, "nodeId");
+        assertEqual(attrName, "value", "attrName");
+        assertEqual(attrValue, "10", "attrValue");
+        callbackCalled = true;
+    }
+
+    slider.value = 10;
+
+    assert(callbackCalled, "attributeModified not called");
+}
+
+export function test_coercible_property_reset_calls_attributeRemoved() {
+    const slider = new Slider();
+    slider.value = 10;
+    slider.ensureDomNode();
+    const domNode = slider.domNode;
+
+    let callbackCalled = false;
+    currentInspector.attributeRemoved = (nodeId: number, attrName: string) => {
+        assertEqual(nodeId, domNode.nodeId, "nodeId");
+        assertEqual(attrName, "value", "attrName");
+        callbackCalled = true;
+    }
+
+    slider.value = unsetValue;
+
+    assert(callbackCalled, "attributeRemoved not called");
 }

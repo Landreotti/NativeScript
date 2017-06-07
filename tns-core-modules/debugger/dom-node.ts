@@ -138,21 +138,37 @@ export class DOMNode {
         const result = getComputedCssValues(this.view)
             .filter(pair => pair[0][0] !== "_")
             .map((pair) => {
-                const name = pair[0];
-                let value = pair[1];
-
-                if (typeof value === "undefined" || value === null) {
-                    value = "";
-                } else if (value instanceof Color) {
-                    value = value.toString()
-                } else if (typeof value === "object") {
-                    value = PercentLength.convertToString(value)
-                } else {
-                    value = value + "";
-                }
-
-                return { name, value }
+                return {
+                    name: pair[0],
+                    value: valueToString(pair[1])
+                };
             });
         return result;
+    }
+
+    attributeModified(name: string, value: any) {
+        const ins = getInspector();
+        if (ins) {
+            ins.attributeModified(this.nodeId, name, valueToString(value));
+        }
+    }
+
+    attributeRemoved(name: string) {
+        const ins = getInspector();
+        if (ins) {
+            ins.attributeRemoved(this.nodeId, name);
+        }
+    }
+}
+
+function valueToString(value: any): string {
+    if (typeof value === "undefined" || value === null) {
+        return "";
+    } else if (value instanceof Color) {
+        return value.toString()
+    } else if (typeof value === "object") {
+        return PercentLength.convertToString(value)
+    } else {
+        return value + "";
     }
 }

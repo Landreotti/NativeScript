@@ -10,7 +10,6 @@ import { parse, loadPage } from "../builder";
 import * as application from "../../application";
 import { unsetValue } from "../../ui/core/properties";
 
-
 export { application };
 
 export * from "../core/view";
@@ -36,6 +35,8 @@ function onLivesync(args: EventData): void {
 }
 application.on("livesync", onLivesync);
 
+
+// TODO: Move this in a separate file
 if (global && global.__inspector) {
     global.__inspector.getDocument = function () {
         const topMostFrame = topmost();

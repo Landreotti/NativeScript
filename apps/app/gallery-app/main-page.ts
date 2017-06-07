@@ -36,5 +36,5 @@ export function remove(args) {
 }
 
 export function navigate() {
-    frame.topmost().navigate("main-page");
+    frame.topmost().navigate("gallery-app/main-page");
 }
