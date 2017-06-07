@@ -12,7 +12,12 @@ const propertyBlacklist = [
     "effectiveBorderTopWidth",
     "effectiveBorderRightWidth",
     "effectiveBorderBottomWidth",
-    "effectiveBorderLeftWidth"
+    "effectiveBorderLeftWidth",
+    "effectiveMinWidth",
+    "nodeName",
+    "nodeType",
+    "decodeWidth",
+    "decodeHeight"
 ]
 
 export interface Inspector {
